@@ -51,7 +51,21 @@ const capas = {
     capa7: crearCapa('sigedes:pendiente_elsalvador'),
     capa8: crearCapa('sigedes:riosCortos'),
     capa9: crearCapa('sigedes:riosLargos'),
-    capa10: crearCapa('sigedes:zonas_bajas_inundacion')
+    capa10: crearCapa('sigedes:zonas_bajas_inundacion'),
+    capa11: crearCapa('sigedes:DEPART_LL'),
+    capa12: crearCapa('sigedes:DEPART_LP'),
+    capa13: crearCapa('sigedes:DEPART_SS'),
+    capa14: crearCapa('sigedes:DISTRI_LL'),
+    capa15: crearCapa('sigedes:DISTRI_LP'),
+    capa16: crearCapa('sigedes:DISTRI_SS'),
+    capa17: crearCapa('sigedes:El Salvador'),
+    capa18: crearCapa('sigedes:MUNIS_LL'),
+    capa19: crearCapa('sigedes:MUNIS_LP'),
+    capa20: crearCapa('sigedes:MUNIS_SS'),
+    capa21: crearCapa('sigedes:carreteras'),
+    capa22: crearCapa('sigedes:curvas_nivel'),
+    capa23: crearCapa('sigedes:dem_elsalvador'),
+    capa24: crearCapa('sigedes:lagos')
 
 };
 
@@ -88,15 +102,29 @@ const map = new ol.Map({
         capas.capa7,
         capas.capa8,
         capas.capa9,
-        capas.capa10
+        capas.capa10,
+        capas.capa11,
+        capas.capa12,
+        capas.capa13,
+        capas.capa14,
+        capas.capa15,
+        capas.capa16,
+        capas.capa17,
+        capas.capa18,
+        capas.capa19,
+        capas.capa20,
+        capas.capa21,
+        capas.capa22,
+        capas.capa23,
+        capas.capa24
     ],
 view: new ol.View({
-  center: ol.proj.fromLonLat([-88.95, 13.7]),
-  zoom: 6,
-  minZoom: 5,
-  maxZoom: 18,
+  center: ol.proj.fromLonLat([-88.9, 13.8]),  // Centro aproximado de El Salvador
+  zoom: 7,                                    // Zoom por defecto (ajustado para ver todo el país)
+  minZoom: 7,                                 // Zoom mínimo (no alejar más allá del país)
+  maxZoom: 18,                                // Zoom máximo para ver detalles
   extent: ol.proj.transformExtent(
-    [-90.2, 13.0, -88.4, 14.3],
+    [-90.15, 13.0, -87.6, 14.45],             // Extensión que cubre todo El Salvador
     'EPSG:4326',
     'EPSG:3857'
   )
