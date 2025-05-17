@@ -1,0 +1,139 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+#map {
+  height: 100%;
+  width: 100%;
+}
+
+/* Botón hamburguesa */
+#toggleControls {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 1100;
+  background-color: #388E3C;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  width: 35px;
+  height: 35px;
+  font-size: 20px;
+  cursor: pointer;
+  box-shadow: 1px 1px 6px rgba(0,0,0,0.3);
+  transition: background-color 0.3s ease;
+}
+
+#toggleControls:hover {
+  background-color: #2e7032;
+}
+
+/* Panel lateral */
+#controls {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 320px;
+  background: rgba(255, 255, 255, 0.97);
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.2);
+  padding: 60px 15px 15px;
+  overflow-y: auto;
+  transition: transform 0.3s ease-in-out;
+  z-index: 1000;
+}
+
+#controls.minimized {
+  transform: translateX(-100%);
+}
+
+.sidebar-section {
+  margin-bottom: 15px;
+}
+
+.sidebar-section label {
+  display: block;
+  font-size: 14px;
+  color: #333;
+  margin-bottom: 4px;
+}
+
+#yearSelect {
+  width: 100%;
+  padding: 6px;
+  font-size: 14px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+/* Capas */
+.legend {
+  margin-left: 15px;
+  font-size: 12px;
+  color: #555;
+}
+
+.btn {
+  margin-top: 10px;
+  width: 100%;
+  padding: 8px;
+  font-size: 14px;
+  font-weight: bold;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn.green {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.btn.red {
+  background-color: #f44336;
+  color: white;
+}
+
+.btn.green:hover {
+  background-color: #388E3C;
+}
+
+.btn.red:hover {
+  background-color: #d32f2f;
+}
+
+/* Panel de información */
+#info {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 280px;
+  max-height: 90%;
+  overflow-y: auto;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 15px 15px 10px;
+  font-size: 13px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+  z-index: 1000;
+}
+
+#closeInfo {
+  position: absolute;
+  top: 5px;
+  right: 8px;
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  color: #888;
+}
+
+#closeInfo:hover {
+  color: #000;
+}
+
