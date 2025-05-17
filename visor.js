@@ -2,13 +2,13 @@
 // Obtener los años disponibles desde GeoServer dinámicamente
 let selectedYear;
 
-fetch('http://68.233.126.108:8080/geoserver/sigedes/wms?service=WMS&request=GetCapabilities')
+fetch('http://155.248.227.38:8080/geoserver/SIGEDES/wms?service=WMS&request=GetCapabilities')
     .then(res => res.text())
     .then(text => {
         const parser = new DOMParser();
         const xml = parser.parseFromString(text, "text/xml");
 
-        const capaBase = "sigedes:mapa_indicador_departamento";
+        const capaBase = "SIGEDES:mapa_indicador_departamento";
         const layer = [...xml.getElementsByTagName("Layer")]
             .find(l => l.getElementsByTagName("Name")[0]?.textContent === capaBase);
 
@@ -42,44 +42,53 @@ fetch('http://68.233.126.108:8080/geoserver/sigedes/wms?service=WMS&request=GetC
 
 
 const capas = {
-    capa1: crearCapa('sigedes:mapa_centros_departamento'),
-    capa2: crearCapa('sigedes:mapa_centros_municipio'),
-    capa3: crearCapa('sigedes:mapa_centros_distrito'),
-    capa4: crearCapa('sigedes:mapa_indicador_departamento'),
-    capa5: crearCapa('sigedes:mapa_indicador_municipio'),
-    capa6: crearCapa('sigedes:mapa_indicador_distrito'),
-    capa7: crearCapa('sigedes:pendiente_elsalvador'),
-    capa8: crearCapa('sigedes:riosCortos'),
-    capa9: crearCapa('sigedes:riosLargos'),
-    capa10: crearCapa('sigedes:zonas_bajas_inundacion'),
-    capa11: crearCapa('sigedes:DEPART_LL'),
-    capa12: crearCapa('sigedes:DEPART_LP'),
-    capa13: crearCapa('sigedes:DEPART_SS'),
-    capa14: crearCapa('sigedes:DISTRI_LL'),
-    capa15: crearCapa('sigedes:DISTRI_LP'),
-    capa16: crearCapa('sigedes:DISTRI_SS'),
-    capa17: crearCapa('sigedes:El Salvador'),
-    capa18: crearCapa('sigedes:MUNIS_LL'),
-    capa19: crearCapa('sigedes:MUNIS_LP'),
-    capa20: crearCapa('sigedes:MUNIS_SS'),
-    capa21: crearCapa('sigedes:carreteras'),
-    capa22: crearCapa('sigedes:curvas_nivel'),
-    capa23: crearCapa('sigedes:dem_elsalvador'),
-    capa24: crearCapa('sigedes:lagos')
+  // Centros Educativos
+  capa1: crearCapa('SIGEDES:mapa_centros_departamento'),
+  capa2: crearCapa('SIGEDES:mapa_centros_municipio'),
+  capa3: crearCapa('SIGEDES:mapa_centros_distrito'),
 
+  // Indicadores de Deserción
+  capa4: crearCapa('SIGEDES:mapa_indicador_departamento'),
+  capa5: crearCapa('SIGEDES:mapa_indicador_municipio'),
+  capa6: crearCapa('SIGEDES:mapa_indicador_distrito'),
+
+  // Límites Administrativos
+  capa7: crearCapa('SIGEDES:DEPART_LL'),
+  capa8: crearCapa('SIGEDES:DEPART_LP'),
+  capa9: crearCapa('SIGEDES:DEPART_SS'),
+  capa10: crearCapa('SIGEDES:DISTRI_LL'),
+  capa11: crearCapa('SIGEDES:DISTRI_LP'),
+  capa12: crearCapa('SIGEDES:DISTRI_SS'),
+  capa13: crearCapa('SIGEDES:El Salvador'),
+  capa14: crearCapa('SIGEDES:MUNIS_LL'),
+  capa15: crearCapa('SIGEDES:MUNIS_LP'),
+  capa16: crearCapa('SIGEDES:MUNIS_SS'),
+
+  // Capas Base - Hidro y Relieve
+  capa17: crearCapa('SIGEDES:pendiente_elsalvador'),
+  capa18: crearCapa('SIGEDES:riosCortos'),
+  capa19: crearCapa('SIGEDES:riosLargos'),
+  capa20: crearCapa('SIGEDES:zonas_bajas_inundacion'),
+
+  // Terreno e Infraestructura
+  capa21: crearCapa('SIGEDES:carreteras'),
+  capa22: crearCapa('SIGEDES:curvas_nivel'),
+  capa23: crearCapa('SIGEDES:dem_elsalvador'),
+  capa24: crearCapa('SIGEDES:lagos')
 };
+
 
 function crearCapa(layerName) {
     return new ol.layer.Image({
         source: new ol.source.ImageWMS({
-            url: 'http://68.233.126.108:8080/geoserver/sigedes/wms',
+            url: 'http://155.248.227.38:8080/geoserver/SIGEDES/wms',
             params: {
                 'LAYERS': layerName,
                 'TILED': true,
                 'TIME': selectedYear
             },
             serverType: 'geoserver',
-            ratio: 1
+            transition: 0
         }),
         opacity: 0.7,
         visible: false
@@ -118,17 +127,17 @@ const map = new ol.Map({
         capas.capa23,
         capas.capa24
     ],
-view: new ol.View({
-  center: ol.proj.fromLonLat([-88.9, 13.8]),  // Centro aproximado de El Salvador
-  zoom: 7,                                    // Zoom por defecto (ajustado para ver todo el país)
-  minZoom: 7,                                 // Zoom mínimo (no alejar más allá del país)
-  maxZoom: 18,                                // Zoom máximo para ver detalles
-  extent: ol.proj.transformExtent(
-    [-90.15, 13.0, -87.6, 14.45],             // Extensión que cubre todo El Salvador
-    'EPSG:4326',
-    'EPSG:3857'
-  )
-})
+    view: new ol.View({
+        center: ol.proj.fromLonLat([-88.9, 13.8]),  // Centro aproximado de El Salvador
+        zoom: 7,                                    // Zoom por defecto (ajustado para ver todo el país)
+        minZoom: 7,                                 // Zoom mínimo (no alejar más allá del país)
+        maxZoom: 18,                                // Zoom máximo para ver detalles
+        extent: ol.proj.transformExtent(
+            [-90.15, 13.0, -87.6, 14.45],             // Extensión que cubre todo El Salvador
+            'EPSG:4326',
+            'EPSG:3857'
+        )
+    })
 
 });
 
@@ -189,40 +198,40 @@ map.on('singleclick', function (evt) {
                             let html = `<strong>Capa ${i}</strong>`;
 
                             if (props.anio || props.ANIO || props.Año || props.año) {
-                              const rawYear = props.anio || props.ANIO || props.Año || props.año;
-                              const yearValue = typeof rawYear === "string" ? rawYear.slice(0, 4) : rawYear;
-                              html += `<div style="margin-top: 4px; font-size: 13px;"><em>Año: ${yearValue}</em></div>`;
+                                const rawYear = props.anio || props.ANIO || props.Año || props.año;
+                                const yearValue = typeof rawYear === "string" ? rawYear.slice(0, 4) : rawYear;
+                                html += `<div style="margin-top: 4px; font-size: 13px;"><em>Año: ${yearValue}</em></div>`;
                             }
-                            
+
                             html += '<ul>';
                             for (const [key, value] of Object.entries(props)) {
                                 const keyLower = key.toLowerCase();
-                              
+
                                 // OMITIR: año ya mostrado arriba
                                 if (keyLower === 'anio' || keyLower === 'año') continue;
-                              
+
                                 // OMITIR: cualquier campo que contenga 'id'
                                 if (keyLower.includes('id')) continue;
-                              
+
                                 let label = key.replace(/_/g, ' ');
                                 let displayValue = value;
-                              
+
                                 if (keyLower.includes('porcentaje') || keyLower.includes('percent')) {
-                                  const num = parseFloat(value);
-                                  if (!isNaN(num)) {
-                                    displayValue = `${num.toFixed(2)}%`;
-                                  }
+                                    const num = parseFloat(value);
+                                    if (!isNaN(num)) {
+                                        displayValue = `${num.toFixed(2)}%`;
+                                    }
                                 }
-                              
+
                                 label = label.split(' ')
-                                  .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-                                  .join(' ');
-                              
+                                    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                                    .join(' ');
+
                                 html += `<li><strong>${label}:</strong> ${displayValue}</li>`;
-                              }
-                              
+                            }
+
                             html += '</ul>';
-                            
+
                             mostrarInfo(html);
                         } else {
                             infoContent.innerHTML = "<em>No hay datos en este punto.</em>";
@@ -243,11 +252,19 @@ map.on('singleclick', function (evt) {
     }
 });
 
-document.getElementById("toggleControls").addEventListener("click", () => {
-    document.getElementById("controls").classList.toggle("minimized");
-  });
-  
-  
+const toggleBtn = document.getElementById("toggleControls");
+const panel = document.getElementById("controls");
+
+toggleBtn.addEventListener("click", () => {
+  const isMinimized = panel.classList.toggle("minimized");
+  toggleBtn.classList.toggle("minimized", isMinimized);
+  toggleBtn.textContent = isMinimized ? "☰" : "❮";
+});
+
+
+
+
+
 document.getElementById('closeInfo').addEventListener('click', () => {
     document.getElementById('info').style.display = 'none';
 });
@@ -259,4 +276,29 @@ function mostrarInfo(html) {
     info.style.display = 'block';
     content.innerHTML = html;
 }
+
+
+document.querySelectorAll('.group-toggle').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const content = btn.nextElementSibling;
+        content.classList.toggle('collapsed');
+        if (content.classList.contains('collapsed')) {
+            btn.textContent = btn.textContent.replace('➖', '➕');
+        } else {
+            btn.textContent = btn.textContent.replace('➕', '➖');
+        }
+    });
+});
+
+window.addEventListener('load', () => {
+  const modal = document.getElementById('welcomeModal');
+  const closeBtn = document.getElementById('closeModal');
+  
+  modal.style.display = 'flex';
+
+  closeBtn.addEventListener('click', () => {
+    modal.style.display = 'none';
+  });
+});
+
 
