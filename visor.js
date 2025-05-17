@@ -134,26 +134,26 @@ view: new ol.View({
 
 document.getElementById('yearSelect').addEventListener('change', function () {
     selectedYear = this.value;
-    for (let i = 1; i <= 10; i++) {
+    for (let i = 1; i <= 24; i++) {
         capas[`capa${i}`].getSource().updateParams({ 'TIME': selectedYear });
     }
 });
 
-for (let i = 1; i <= 10; i++) {
+for (let i = 1; i <= 24; i++) {
     document.getElementById(`capa${i}`).addEventListener('change', function () {
         capas[`capa${i}`].setVisible(this.checked);
     });
 }
 
 document.getElementById('activateAll').addEventListener('click', function () {
-    for (let i = 1; i <= 10; i++) {
+    for (let i = 1; i <= 24; i++) {
         document.getElementById(`capa${i}`).checked = true;
         capas[`capa${i}`].setVisible(true);
     }
 });
 
 document.getElementById('deactivateAll').addEventListener('click', function () {
-    for (let i = 1; i <= 10; i++) {
+    for (let i = 1; i <= 24; i++) {
         document.getElementById(`capa${i}`).checked = false;
         capas[`capa${i}`].setVisible(false);
     }
@@ -169,7 +169,7 @@ map.on('singleclick', function (evt) {
 
     let found = false;
 
-    for (let i = 1; i <= 10; i++) {
+    for (let i = 1; i <= 24; i++) {
         const capa = capas[`capa${i}`];
         if (capa.getVisible()) {
             const url = capa.getSource().getFeatureInfoUrl(
