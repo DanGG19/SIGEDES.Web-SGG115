@@ -2,7 +2,7 @@
 // Obtener los años disponibles desde GeoServer dinámicamente
 let selectedYear;
 
-fetch('http://155.248.227.38:8080/geoserver/SIGEDES/wms?service=WMS&request=GetCapabilities')
+fetch('https://geoserver.gg19083.me/geoserver/SIGEDES/wms?service=WMS&request=GetCapabilities')
     .then(res => res.text())
     .then(text => {
         const parser = new DOMParser();
@@ -81,7 +81,7 @@ const capas = {
 function crearCapa(layerName) {
     return new ol.layer.Image({
         source: new ol.source.ImageWMS({
-            url: 'http://155.248.227.38:8080/geoserver/SIGEDES/wms',
+            url: 'https://geoserver.gg19083.me/geoserver/SIGEDES/wms',
             params: {
                 'LAYERS': layerName,
                 'TILED': true,
