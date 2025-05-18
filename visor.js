@@ -1,6 +1,22 @@
 
 // Obtener los años disponibles desde GeoServer dinámicamente
-let selectedYear;
+let selectedYear = new Date().getFullYear();
+
+const mapStyles = {
+    normal: new ol.source.OSM(),
+    grayscale: new ol.source.XYZ({
+        url: 'https://{a-c}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
+        attributions: '&copy; CARTO, OpenStreetMap contributors',
+        crossOrigin: 'anonymous'
+    }),
+    humanitarian: new ol.source.XYZ({
+        url: 'https://{a-c}.tile.opentopomap.org/{z}/{x}/{y}.png',
+        attributions: '&copy; OpenTopoMap & contributors',
+        crossOrigin: 'anonymous'
+    })
+};
+
+
 
 fetch('https://geoserver.gg19083.me/geoserver/SIGEDES/wms?service=WMS&request=GetCapabilities')
     .then(res => res.text())
@@ -19,8 +35,7 @@ fetch('https://geoserver.gg19083.me/geoserver/SIGEDES/wms?service=WMS&request=Ge
             return;
         }
 
-        const years = [...new Set(dimension.textContent.trim().split(",").map(y => y.slice(0, 4)))]
-            .sort((a, b) => b - a);
+        const years = [...new Set(dimension.textContent.trim().split(",").map(y => y.slice(0, 4)))].sort((a, b) => b - a);
 
         yearSelect.innerHTML = ""; // limpiar el select
 
@@ -42,39 +57,39 @@ fetch('https://geoserver.gg19083.me/geoserver/SIGEDES/wms?service=WMS&request=Ge
 
 
 const capas = {
-  // Centros Educativos
-  capa1: crearCapa('SIGEDES:mapa_centros_departamento'),
-  capa2: crearCapa('SIGEDES:mapa_centros_municipio'),
-  capa3: crearCapa('SIGEDES:mapa_centros_distrito'),
+    // Centros Educativos
+    capa1: crearCapa('SIGEDES:mapa_centros_departamento'),
+    capa2: crearCapa('SIGEDES:mapa_centros_municipio'),
+    capa3: crearCapa('SIGEDES:mapa_centros_distrito'),
 
-  // Indicadores de Deserción
-  capa4: crearCapa('SIGEDES:mapa_indicador_departamento'),
-  capa5: crearCapa('SIGEDES:mapa_indicador_municipio'),
-  capa6: crearCapa('SIGEDES:mapa_indicador_distrito'),
+    // Indicadores de Deserción
+    capa4: crearCapa('SIGEDES:mapa_indicador_departamento'),
+    capa5: crearCapa('SIGEDES:mapa_indicador_municipio'),
+    capa6: crearCapa('SIGEDES:mapa_indicador_distrito'),
 
-  // Límites Administrativos
-  capa7: crearCapa('SIGEDES:DEPART_LL'),
-  capa8: crearCapa('SIGEDES:DEPART_LP'),
-  capa9: crearCapa('SIGEDES:DEPART_SS'),
-  capa10: crearCapa('SIGEDES:DISTRI_LL'),
-  capa11: crearCapa('SIGEDES:DISTRI_LP'),
-  capa12: crearCapa('SIGEDES:DISTRI_SS'),
-  capa13: crearCapa('SIGEDES:El Salvador'),
-  capa14: crearCapa('SIGEDES:MUNIS_LL'),
-  capa15: crearCapa('SIGEDES:MUNIS_LP'),
-  capa16: crearCapa('SIGEDES:MUNIS_SS'),
+    // Límites Administrativos
+    capa7: crearCapa('SIGEDES:DEPART_LL'),
+    capa8: crearCapa('SIGEDES:DEPART_LP'),
+    capa9: crearCapa('SIGEDES:DEPART_SS'),
+    capa10: crearCapa('SIGEDES:DISTRI_LL'),
+    capa11: crearCapa('SIGEDES:DISTRI_LP'),
+    capa12: crearCapa('SIGEDES:DISTRI_SS'),
+    capa13: crearCapa('SIGEDES:El Salvador'),
+    capa14: crearCapa('SIGEDES:MUNIS_LL'),
+    capa15: crearCapa('SIGEDES:MUNIS_LP'),
+    capa16: crearCapa('SIGEDES:MUNIS_SS'),
 
-  // Capas Base - Hidro y Relieve
-  capa17: crearCapa('SIGEDES:pendiente_elsalvador'),
-  capa18: crearCapa('SIGEDES:riosCortos'),
-  capa19: crearCapa('SIGEDES:riosLargos'),
-  capa20: crearCapa('SIGEDES:zonas_bajas_inundacion'),
+    // Capas Base - Hidro y Relieve
+    capa17: crearCapa('SIGEDES:pendiente_elsalvador'),
+    capa18: crearCapa('SIGEDES:riosCortos'),
+    capa19: crearCapa('SIGEDES:riosLargos'),
+    capa20: crearCapa('SIGEDES:zonas_bajas_inundacion'),
 
-  // Terreno e Infraestructura
-  capa21: crearCapa('SIGEDES:carreteras'),
-  capa22: crearCapa('SIGEDES:curvas_nivel'),
-  capa23: crearCapa('SIGEDES:dem_elsalvador'),
-  capa24: crearCapa('SIGEDES:lagos')
+    // Terreno e Infraestructura
+    capa21: crearCapa('SIGEDES:carreteras'),
+    capa22: crearCapa('SIGEDES:curvas_nivel'),
+    capa23: crearCapa('SIGEDES:dem_elsalvador'),
+    capa24: crearCapa('SIGEDES:lagos')
 };
 
 
@@ -85,7 +100,7 @@ function crearCapa(layerName) {
             params: {
                 'LAYERS': layerName,
                 'TILED': true,
-                'TIME': selectedYear
+                get TIME() { return selectedYear }
             },
             serverType: 'geoserver',
             transition: 0
@@ -98,48 +113,52 @@ function crearCapa(layerName) {
 capas.capa1.setVisible(true);
 capas.capa4.setVisible(true);
 
+let baseLayer = new ol.layer.Tile({
+    source: mapStyles.normal
+});
+
+document.querySelectorAll('.style-thumb').forEach(thumb => {
+    thumb.addEventListener('click', function () {
+        const selected = this.getAttribute('data-style');
+
+        // Actualizar estilo base
+        if (mapStyles[selected]) {
+            baseLayer.setSource(mapStyles[selected]);
+        }
+
+        // Quitar selección anterior
+        document.querySelectorAll('.style-thumb').forEach(el => el.classList.remove('selected'));
+        this.classList.add('selected');
+    });
+});
+
+
+
 const map = new ol.Map({
     target: 'map',
-    layers: [
-        new ol.layer.Tile({ source: new ol.source.OSM() }),
-        capas.capa1,
-        capas.capa2,
-        capas.capa3,
-        capas.capa4,
-        capas.capa5,
-        capas.capa6,
-        capas.capa7,
-        capas.capa8,
-        capas.capa9,
-        capas.capa10,
-        capas.capa11,
-        capas.capa12,
-        capas.capa13,
-        capas.capa14,
-        capas.capa15,
-        capas.capa16,
-        capas.capa17,
-        capas.capa18,
-        capas.capa19,
-        capas.capa20,
-        capas.capa21,
-        capas.capa22,
-        capas.capa23,
-        capas.capa24
-    ],
+    layers: [baseLayer, ...Object.values(capas)],
     view: new ol.View({
-        center: ol.proj.fromLonLat([-88.9, 13.8]),  // Centro aproximado de El Salvador
-        zoom: 7,                                    // Zoom por defecto (ajustado para ver todo el país)
-        minZoom: 7,                                 // Zoom mínimo (no alejar más allá del país)
-        maxZoom: 18,                                // Zoom máximo para ver detalles
-        extent: ol.proj.transformExtent(
-            [-90.15, 13.0, -87.6, 14.45],             // Extensión que cubre todo El Salvador
-            'EPSG:4326',
-            'EPSG:3857'
-        )
+        center: ol.proj.fromLonLat([-88.9, 13.8]),
+        zoom: 7,
+        minZoom: 7,
+        maxZoom: 18,
+        extent: ol.proj.transformExtent([-90.15, 13.0, -87.6, 14.45], 'EPSG:4326', 'EPSG:3857')
     })
-
 });
+
+// Estilo dinámico del mapa base
+const mapStyleSelect = document.getElementById('mapStyle');
+if (mapStyleSelect) {
+    mapStyleSelect.addEventListener('change', function () {
+        const selected = this.value;
+        if (mapStyles[selected]) {
+            baseLayer.setSource(mapStyles[selected]);
+        }
+    });
+}
+
+
+
 
 document.getElementById('yearSelect').addEventListener('change', function () {
     selectedYear = this.value;
@@ -181,8 +200,14 @@ map.on('singleclick', function (evt) {
     for (let i = 1; i <= 24; i++) {
         const capa = capas[`capa${i}`];
         if (capa.getVisible()) {
+            const params = capa.getSource().getParams();
+            params.TIME = selectedYear;
+            capa.getSource().updateParams(params);
+
             const url = capa.getSource().getFeatureInfoUrl(
-                evt.coordinate, resolution, projection.getCode(),
+                evt.coordinate,
+                resolution,
+                projection.getCode(),
                 {
                     INFO_FORMAT: 'application/json',
                     TIME: selectedYear
@@ -256,12 +281,10 @@ const toggleBtn = document.getElementById("toggleControls");
 const panel = document.getElementById("controls");
 
 toggleBtn.addEventListener("click", () => {
-  const isMinimized = panel.classList.toggle("minimized");
-  toggleBtn.classList.toggle("minimized", isMinimized);
-  toggleBtn.textContent = isMinimized ? "☰" : "❮";
+    const isMinimized = panel.classList.toggle("minimized");
+    toggleBtn.classList.toggle("minimized", isMinimized);
+    toggleBtn.textContent = isMinimized ? "☰" : "❮";
 });
-
-
 
 
 
@@ -291,14 +314,86 @@ document.querySelectorAll('.group-toggle').forEach(btn => {
 });
 
 window.addEventListener('load', () => {
-  const modal = document.getElementById('welcomeModal');
-  const closeBtn = document.getElementById('closeModal');
-  
-  modal.style.display = 'flex';
+    const modal = document.getElementById('welcomeModal');
+    const closeBtn = document.getElementById('closeModal');
 
-  closeBtn.addEventListener('click', () => {
-    modal.style.display = 'none';
+    modal.style.display = 'flex';
+
+    closeBtn.addEventListener('click', () => {
+        modal.style.display = 'none';
+    });
+});
+
+document.getElementById("zoomIn").addEventListener("click", () => {
+    const view = map.getView();
+    view.setZoom(view.getZoom() + 1);
+});
+
+document.getElementById("zoomOut").addEventListener("click", () => {
+    const view = map.getView();
+    view.setZoom(view.getZoom() - 1);
+});
+
+window.addEventListener('load', () => {
+  // Inicializa tu mapa aquí
+  const map = new ol.Map({
+    target: 'map',
+    layers: [
+      new ol.layer.Tile({
+        source: new ol.source.OSM()
+      })
+    ],
+    view: new ol.View({
+      center: ol.proj.fromLonLat([-88.9, 13.8]),
+      zoom: 7
+    })
+  });
+
+  // Escucha el evento de carga completa del mapa
+  map.once('rendercomplete', () => {
+    const preloader = document.getElementById('preloader');
+    preloader.style.transition = 'opacity 1s ease';
+    preloader.style.opacity = '0';
+    setTimeout(() => {
+      preloader.style.display = 'none';
+    }, 500);
   });
 });
 
+// Mostrar animación de carga
+const loadingScreen = document.getElementById("loadingScreen");
+loadingScreen.style.display = "flex";
 
+// Contador de capas cargadas
+let capasCargadas = 0;
+const totalCapas = 24;
+
+for (let i = 1; i <= totalCapas; i++) {
+  capas[`capa${i}`].setVisible(true);
+  const source = capas[`capa${i}`].getSource();
+
+  source.on('imageloadend', () => {
+    capasCargadas++;
+
+    if (capasCargadas === totalCapas) {
+      // 👉 Aquí se quita el preloader
+      const preloader = document.getElementById("preloader");
+      preloader.style.transition = 'opacity 1s ease';
+      preloader.style.opacity = '0';
+      setTimeout(() => {
+        preloader.style.display = 'none';
+      }, 500);
+
+      // ✅ Mostrar solo capa1 y capa4
+      for (let j = 1; j <= totalCapas; j++) {
+        const visible = (j === 1 || j === 4);
+        capas[`capa${j}`].setVisible(visible);
+        document.getElementById(`capa${j}`).checked = visible;
+      }
+
+      // 👉 Mostrar bienvenida
+      const welcome = document.getElementById("welcomeModal");
+      if (welcome) welcome.style.display = "flex";
+    }
+  });
+}
