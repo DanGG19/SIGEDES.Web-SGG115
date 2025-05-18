@@ -28,7 +28,13 @@ fetch('https://geoserver.gg19083.me/geoserver/SIGEDES/wms?service=WMS&request=Ge
         const layer = [...xml.getElementsByTagName("Layer")]
             .find(l => l.getElementsByTagName("Name")[0]?.textContent === capaBase);
 
-        const dimension = layer?.getElementsByTagName("Dimension")[0];
+
+        const dimension = [...layer?.getElementsByTagName("*") || []].find(e => e.tagName.toLowerCase() === "dimension");
+        if (!dimension || !dimension.textContent) {
+            console.warn("No se encontró la dimensión temporal.");
+            selectedYear = yearSelect.value;
+            return;
+        }
         if (!dimension) {
             console.warn("No se encontró la dimensión temporal.");
             selectedYear = yearSelect.value;
@@ -167,11 +173,23 @@ document.getElementById('yearSelect').addEventListener('change', function () {
     }
 });
 
+const capasConTiempo = [4, 5, 6];  // Las que usan TIME
+
 for (let i = 1; i <= 24; i++) {
     document.getElementById(`capa${i}`).addEventListener('change', function () {
-        capas[`capa${i}`].setVisible(this.checked);
+        const capa = capas[`capa${i}`];
+        capa.setVisible(this.checked);
+
+        if (this.checked && capasConTiempo.includes(i)) {
+            // Forzar recarga cuando se active una capa con dimensión temporal
+            const source = capa.getSource();
+            const params = source.getParams();
+            params.TIME = selectedYear;
+            source.updateParams(params);
+        }
     });
 }
+
 
 document.getElementById('activateAll').addEventListener('click', function () {
     for (let i = 1; i <= 24; i++) {
@@ -335,65 +353,31 @@ document.getElementById("zoomOut").addEventListener("click", () => {
 });
 
 window.addEventListener('load', () => {
-  // Inicializa tu mapa aquí
-  const map = new ol.Map({
-    target: 'map',
-    layers: [
-      new ol.layer.Tile({
-        source: new ol.source.OSM()
-      })
-    ],
-    view: new ol.View({
-      center: ol.proj.fromLonLat([-88.9, 13.8]),
-      zoom: 7
-    })
-  });
+    // Inicializa tu mapa aquí
+    const map = new ol.Map({
+        target: 'map',
+        layers: [
+            new ol.layer.Tile({
+                source: new ol.source.OSM()
+            })
+        ],
+        view: new ol.View({
+            center: ol.proj.fromLonLat([-88.9, 13.8]),
+            zoom: 7
+        })
+    });
 
-  // Escucha el evento de carga completa del mapa
-  map.once('rendercomplete', () => {
-    const preloader = document.getElementById('preloader');
-    preloader.style.transition = 'opacity 1s ease';
-    preloader.style.opacity = '0';
-    setTimeout(() => {
-      preloader.style.display = 'none';
-    }, 500);
-  });
+    // Escucha el evento de carga completa del mapa
+    map.once('rendercomplete', () => {
+        const preloader = document.getElementById('preloader');
+        if (preloader) {
+            preloader.style.transition = 'opacity 1s ease';
+            preloader.style.opacity = '0';
+            setTimeout(() => {
+                preloader.style.display = 'none';
+            }, 1000);
+        } else {
+            console.warn("⚠️ Elemento con id='preloader' no encontrado.");
+        }
+    });
 });
-
-// Mostrar animación de carga
-const loadingScreen = document.getElementById("loadingScreen");
-loadingScreen.style.display = "flex";
-
-// Contador de capas cargadas
-let capasCargadas = 0;
-const totalCapas = 24;
-
-for (let i = 1; i <= totalCapas; i++) {
-  capas[`capa${i}`].setVisible(true);
-  const source = capas[`capa${i}`].getSource();
-
-  source.on('imageloadend', () => {
-    capasCargadas++;
-
-    if (capasCargadas === totalCapas) {
-      // 👉 Aquí se quita el preloader
-      const preloader = document.getElementById("preloader");
-      preloader.style.transition = 'opacity 1s ease';
-      preloader.style.opacity = '0';
-      setTimeout(() => {
-        preloader.style.display = 'none';
-      }, 500);
-
-      // ✅ Mostrar solo capa1 y capa4
-      for (let j = 1; j <= totalCapas; j++) {
-        const visible = (j === 1 || j === 4);
-        capas[`capa${j}`].setVisible(visible);
-        document.getElementById(`capa${j}`).checked = visible;
-      }
-
-      // 👉 Mostrar bienvenida
-      const welcome = document.getElementById("welcomeModal");
-      if (welcome) welcome.style.display = "flex";
-    }
-  });
-}
