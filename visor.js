@@ -95,7 +95,9 @@ const capas = {
     capa21: crearCapa('SIGEDES:carreteras'),
     capa22: crearCapa('SIGEDES:curvas_nivel'),
     capa23: crearCapa('SIGEDES:dem_elsalvador'),
-    capa24: crearCapa('SIGEDES:lagos')
+    capa24: crearCapa('SIGEDES:lagos'),
+    capa25: crearCapa('SIGEDES:renderDeserciono75'),
+    capa26: crearCapa('SIGEDES:renderCentros')
 };
 
 
@@ -168,14 +170,14 @@ if (mapStyleSelect) {
 
 document.getElementById('yearSelect').addEventListener('change', function () {
     selectedYear = this.value;
-    for (let i = 1; i <= 24; i++) {
+    for (let i = 1; i <= 26; i++) {
         capas[`capa${i}`].getSource().updateParams({ 'TIME': selectedYear });
     }
 });
 
 const capasConTiempo = [4, 5, 6];  // Las que usan TIME
 
-for (let i = 1; i <= 24; i++) {
+for (let i = 1; i <= 26; i++) {
     document.getElementById(`capa${i}`).addEventListener('change', function () {
         const capa = capas[`capa${i}`];
         capa.setVisible(this.checked);
@@ -192,14 +194,14 @@ for (let i = 1; i <= 24; i++) {
 
 
 document.getElementById('activateAll').addEventListener('click', function () {
-    for (let i = 1; i <= 24; i++) {
+    for (let i = 1; i <= 26; i++) {
         document.getElementById(`capa${i}`).checked = true;
         capas[`capa${i}`].setVisible(true);
     }
 });
 
 document.getElementById('deactivateAll').addEventListener('click', function () {
-    for (let i = 1; i <= 24; i++) {
+    for (let i = 1; i <= 26; i++) {
         document.getElementById(`capa${i}`).checked = false;
         capas[`capa${i}`].setVisible(false);
     }
@@ -215,7 +217,7 @@ map.on('singleclick', function (evt) {
 
     let found = false;
 
-    for (let i = 1; i <= 24; i++) {
+    for (let i = 1; i <= 26; i++) {
         const capa = capas[`capa${i}`];
         if (capa.getVisible()) {
             const params = capa.getSource().getParams();
