@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="utf-8" />
+  <title>Visor Web GIS</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@v7.3.0/ol.css" />
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<div id="preloader">
+  <div class="globe-spinner"></div>
+  <p class="loading-text">🌍 Cargando Capas...</p>
+</div>
+                                
+
+  <!-- Botón hamburguesa -->
+  <button id="toggleControls">❮</button>
+
+
+
+  <!-- Panel lateral de controles -->
+   
+  <div id="controls">
+    <button id="dashboardBtn" class="btn-dashboard">📊 Dashboard</button>
+    <div class="sidebar-section">
+      <!-- Selector de año -->
+
+      <label for="yearSelect"><strong>Año:</strong></label>
+      <select id="yearSelect">
+        <option value="2024" selected>2024</option>
+        <option value="2023">2023</option>
+        <option value="2022">2022</option>
+        <option value="2021">2021</option>
+        <option value="2020">2020</option>
+        <option value="2019">2019</option>
+        <option value="2018">2018</option>
+        <option value="2017">2017</option>
+        <option value="2016">2016</option>
+        <option value="2015">2015</option>
+      </select>
+
+      <hr>
+      <strong>Capas disponibles:</strong>
+
+      <!-- Grupo: Centros Educativos (expandido) -->
+      <div class="layer-group">
+        <button class="group-toggle">➖ Centros Educativos</button>
+        <div class="group-content">
+          <label><input type="checkbox" id="capa1" checked> Por Departamento</label>
+          <div class="legend">— Total centros por depto.</div>
+          <label><input type="checkbox" id="capa2"> Por Municipio</label>
+          <div class="legend">— Total centros por municipio</div>
+          <label><input type="checkbox" id="capa3"> Por Distrito</label>
+          <div class="legend">— Total centros por distrito</div>
+        </div>
+      </div>
+
+      <!-- Grupo: Indicadores de Deserción (expandido) -->
+      <div class="layer-group">
+        <button class="group-toggle">➖ Indicadores de Deserción</button>
+        <div class="group-content">
+          <label><input type="checkbox" id="capa4" checked> Por Departamento</label>
+          <div class="legend">— % deserción por depto.</div>
+          <label><input type="checkbox" id="capa5"> Por Municipio</label>
+          <div class="legend">— % deserción por municipio</div>
+          <label><input type="checkbox" id="capa6"> Por Distrito</label>
+          <div class="legend">— % deserción por distrito</div>
+        </div>
+      </div>
+
+      <!-- Grupo: Límites Administrativos (expandido) -->
+      <div class="layer-group">
+        <button class="group-toggle">➖ Límites Administrativos</button>
+        <div class="group-content">
+          <label><input type="checkbox" id="capa7"> Limite Depto. LL</label>
+          <div class="legend">— La Libertad</div>
+          <label><input type="checkbox" id="capa8"> Limite Depto. LP</label>
+          <div class="legend">— La Paz</div>
+          <label><input type="checkbox" id="capa9"> Limite Depto. SS</label>
+          <div class="legend">— San Salvador</div>
+          <label><input type="checkbox" id="capa10"> Limite Distrito LL</label>
+          <div class="legend">— Distritos en La Libertad</div>
+          <label><input type="checkbox" id="capa11"> Limite Distrito LP</label>
+          <div class="legend">— Distritos en La Paz</div>
+          <label><input type="checkbox" id="capa12"> Limite Distrito SS</label>
+          <div class="legend">— Distritos en San Salvador</div>
+          <label><input type="checkbox" id="capa13"> Frontera Nacional</label>
+          <div class="legend">— Límite nacional</div>
+          <label><input type="checkbox" id="capa14"> Municipios LL</label>
+          <div class="legend">— Municipios de La Libertad</div>
+          <label><input type="checkbox" id="capa15"> Municipios LP</label>
+          <div class="legend">— Municipios de La Paz</div>
+          <label><input type="checkbox" id="capa16"> Municipios SS</label>
+          <div class="legend">— Municipios de San Salvador</div>
+        </div>
+      </div>
+
+      <!-- Grupo: Capas Base - Hidro y Relieve (colapsado) -->
+      <div class="layer-group">
+        <button class="group-toggle">➕ Capas Base - Hidro y Relieve</button>
+        <div class="group-content collapsed">
+          <label><input type="checkbox" id="capa17"> Pendiente de El Salvador</label>
+          <div class="legend">— Modelo de pendiente</div>
+          <label><input type="checkbox" id="capa18"> Ríos Cortos</label>
+          <div class="legend">— Hidrografía menor</div>
+          <label><input type="checkbox" id="capa19"> Ríos Largos</label>
+          <div class="legend">— Hidrografía principal</div>
+          <label><input type="checkbox" id="capa20"> Zonas Bajas de Inundación</label>
+          <div class="legend">— Áreas susceptibles a inundación</div>
+        </div>
+      </div>
+
+      <!-- Grupo: Terreno e Infraestructura (colapsado) -->
+      <div class="layer-group">
+        <button class="group-toggle">➕ Terreno e Infraestructura</button>
+        <div class="group-content collapsed">
+          <label><input type="checkbox" id="capa21"> Carreteras</label>
+          <div class="legend">— Red vial nacional y secundaria</div>
+          <label><input type="checkbox" id="capa22"> Curvas de Nivel</label>
+          <div class="legend">— Líneas de igual altitud</div>
+          <label><input type="checkbox" id="capa23"> DEM El Salvador</label>
+          <div class="legend">— Modelo Digital de Elevación</div>
+          <label><input type="checkbox" id="capa24"> Lagos</label>
+          <div class="legend">— Principales cuerpos de agua</div>
+          <label><input type="checkbox" id="capa25"> Mapa de calor Deserción</label>
+          <div class="legend">— HeatMap para Deserción</div>
+          <label><input type="checkbox" id="capa26"> Mapa de calor Centros</label>
+          <div class="legend">— HeatMap para Centros Educatios</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Botones de acción -->
+    <div style="padding: 0 15px 15px;">
+      <button class="btn green" id="activateAll">Activar todas</button>
+      <button class="btn red" id="deactivateAll">Desactivar todas</button>
+    </div>
+  </div>
+  <a href = "./3D/SIGEDES_WEB_3D/index_3D.html"><button id="swapDimension">Cambiar a vista 3D</button></a>
+  <!-- Mapa principal -->
+  <div id="map"></div>
+
+  
+  <div id="logoTopRight">
+  <img src="logo-sigedes.png" alt="SIGEDES Logo">
+</div>
+
+
+  <!-- Panel de información -->
+  <div id="info" style="display: none;">
+    <button id="closeInfo">✖</button>
+    <div id="infoContent"><em>Haz clic en una capa para ver información.</em></div>
+  </div>
+
+  <div id="customZoom">
+    <button id="zoomIn">+</button>
+    <button id="zoomOut">−</button>
+  </div>
+
+<div id="mapStyleContainer">
+  <label for="mapStyle"><strong>Estilo del Mapa:</strong></label>
+  <div id="mapStyleThumbnails">
+    <div class="style-thumb selected" data-style="normal">
+      <img src="https://a.tile.openstreetmap.org/7/63/48.png" alt="Clásico">
+      <span>Clásico</span>
+    </div>
+    <div class="style-thumb" data-style="grayscale">
+      <img src="https://a.basemaps.cartocdn.com/light_all/7/63/48.png" alt="Grayscale">
+      <span>Blanco y negro</span>
+    </div>
+    <div class="style-thumb" data-style="humanitarian">
+      <img src="https://a.tile.opentopomap.org/7/63/48.png" alt="Humanitario">
+      <span>Humanitario</span>
+    </div>
+  </div>
+</div>
+
+<div id="welcomeModal" class="modal">
+  <div class="modal-content">
+    <h2>👋 ¡Bienvenido al Visor Web GIS!</h2>
+    <p>Este visor te permite explorar:</p>
+    <ul>
+      <li>🗺 Capas educativas y de deserción escolar</li>
+      <li>📍 Límites administrativos y carreteras</li>
+      <li>🌊 Zonas de inundación y relieve</li>
+    </ul>
+    <p>✅ Usa el menú lateral izquierdo para activar capas.</p>
+    <button id="closeModal">Empezar</button>
+  </div>
+</div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/ol@v7.3.0/dist/ol.js"></script>
+  <script src="visor.js"></script>
+</body>
+
+
+</html>

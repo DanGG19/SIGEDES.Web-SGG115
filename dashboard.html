@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard - SIGEDES</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" />
+  <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <style>
+    canvas {
+      max-height: 400px !important;
+    }
+  </style>
+</head>
+
+<body class="bg-gray-100 min-h-screen text-gray-800">
+  <div class="container mx-auto px-4 py-8">
+    <div class="flex items-center justify-center mb-6 gap-4">
+      <img src="logo-sigedes.png" alt="Logo SIGEDES" class="w-12 h-12">
+      <h1 class="text-3xl font-bold text-blue-700">Dashboard de SIGEDES</h1>
+    </div>
+
+    <div class="flex flex-col md:flex-row items-center justify-center gap-4 mb-4">
+      <label for="tabla-select" class="font-semibold text-lg">Selecciona una tabla:</label>
+      <select id="tabla-select"
+        class="p-2 rounded border border-gray-300 shadow-sm focus:outline-none focus:ring focus:border-blue-400">
+        <option value="resumen_centros_departamento">Centros por Departamento</option>
+        <option value="resumen_centros_distrito">Centros por Distrito</option>
+        <option value="resumen_centros_municipio">Centros por Municipio</option>
+        <option value="resumen_desercion_departamento">Deserción por Departamento</option>
+        <option value="resumen_desercion_distrito">Deserción por Distrito</option>
+        <option value="resumen_desercion_municipio">Deserción por Municipio</option>
+      </select>
+    </div>
+
+    <div class="flex flex-col md:flex-row items-center justify-center gap-4 mb-8">
+      <label for="valor-select" class="font-semibold text-lg">Campo numérico:</label>
+      <select id="valor-select"
+        class="p-2 rounded border border-gray-300 shadow-sm focus:outline-none focus:ring focus:border-blue-400">
+        <!-- opciones dinámicas -->
+      </select>
+    </div>
+
+    <div class="overflow-x-auto bg-white rounded-lg shadow">
+      <table id="tabla" class="display min-w-full text-sm text-left text-gray-600"></table>
+    </div>
+
+    <div class="mt-10 flex flex-col md:flex-row gap-8">
+      <div id="grafico-container" class="w-full md:w-3/4">
+        <h2 id="grafico-titulo" class="text-xl font-semibold text-center text-gray-700 mb-4"></h2>
+        <canvas id="grafico-canvas" class="w-full max-w-4xl mx-auto h-[400px]"></canvas>
+      </div>
+
+      <div id="resumen-container" class="w-full md:w-1/4 bg-white p-4 rounded-lg shadow max-h-[400px] overflow-y-auto">
+        <h3 class="text-lg font-semibold mb-2 text-center">Resumen</h3>
+        <ul id="resumen-lista" class="text-sm grid gap-x-4 gap-y-1"></ul>
+        <button id="exportarPDF" class="mt-4 w-full px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">
+          Exportar PDF
+        </button>
+      </div>
+    </div>
+
+    <div class="flex justify-center mt-6">
+      <button id="toggleChart"
+        class="px-4 py-2 bg-blue-600 text-white font-semibold rounded shadow hover:bg-blue-700 transition">
+        Cambiar tipo de gráfico
+      </button>
+    </div>
+  </div>
+
+  <script>
+    import { jsPDF } from "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js";
+
+    window.jsPDF = jsPDF;
+    exportarBtn.addEventListener("click", () => {
+      const doc = new jsPDF();
+      doc.text("Resumen de Datos", 10, 10);
+      let y = 20;
+      resumenLista.querySelectorAll("li").forEach((li) => {
+        doc.text(li.textContent, 10, y);
+        y += 10;
+      });
+      doc.save("resumen.pdf");
+    });
+
+    window.actualizarResumen = function (etiquetas, valores) {
+      resumenLista.innerHTML = etiquetas.map((et, i) => `<li><strong>${et}</strong>: ${valores[i]}</li>`).join("");
+    }
+  </script>
+
+  <script>
+    const apiBase = "https://api.gg19083.me/api/";
+    const select = document.getElementById("tabla-select");
+    const valorSelect = document.getElementById("valor-select");
+    const tablaHTML = document.getElementById("tabla");
+    const graficoContainer = document.getElementById("grafico-container");
+    const toggleChartBtn = document.getElementById("toggleChart");
+    const resumenLista = document.getElementById("resumen-lista");
+    const exportarBtn = document.getElementById("exportarPDF");
+    const canvas = document.getElementById("grafico-canvas");
+
+    let chart = null;
+    let currentChartType = "bar";
+    let currentValor = null;
+    let currentYear = "Todos";
+
+    const yearSelect = document.createElement("select");
+    yearSelect.id = "filtro-anio";
+    yearSelect.className = "ml-4 p-2 rounded border border-gray-300 shadow-sm focus:outline-none focus:ring focus:border-blue-400";
+    select.insertAdjacentElement("afterend", yearSelect);
+
+    function cargarDatos(tabla) {
+      fetch(apiBase + tabla)
+        .then(res => res.json())
+        .then(data => {
+          if (!data || data.length === 0) return;
+
+          if ($.fn.DataTable.isDataTable('#tabla')) {
+            $('#tabla').DataTable().clear().destroy();
+          }
+          tablaHTML.innerHTML = "";
+
+          const columnas = Object.keys(data[0]);
+
+          let thead = `<thead class="bg-blue-600 text-white"><tr>`;
+          columnas.forEach(col => {
+            thead += `<th class="px-4 py-2 border">${col}</th>`;
+          });
+          thead += `</tr></thead>`;
+
+          let tbody = "<tbody>";
+          data.forEach(row => {
+            tbody += `<tr class="hover:bg-gray-100">`;
+            columnas.forEach(col => {
+              tbody += `<td class="px-4 py-2 border">${row[col] ?? ''}</td>`;
+            });
+            tbody += `</tr>`;
+          });
+          tbody += "</tbody>";
+
+          tablaHTML.innerHTML = thead + tbody;
+
+          $('#tabla').DataTable({
+            pageLength: 5,
+            lengthMenu: [5, 10, 25, 50, 100],
+            language: {
+              url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
+            }
+          });
+
+          const tablaActual = select.value;
+          let etiqueta;
+          if (tablaActual.includes("distrito") && columnas.includes("distrito")) {
+            etiqueta = "distrito";
+          } else if (columnas.includes("nombre_municipio")) {
+            etiqueta = "nombre_municipio";
+          } else if (columnas.includes("municipio")) {
+            etiqueta = "municipio";
+          } else if (columnas.includes("nombre_departamento")) {
+            etiqueta = "nombre_departamento";
+          } else if (columnas.includes("departamento")) {
+            etiqueta = "departamento";
+          } else {
+            etiqueta = columnas.find(c => typeof data[0][c] === "string" && !c.toLowerCase().includes("id")) || columnas[0];
+          }
+
+          const camposNumericos = columnas.filter(c => {
+            const isNumeric = data.every(row => !isNaN(Number(row[c])));
+            const notID = !c.toLowerCase().includes("id");
+            const notAnio = c.toLowerCase() !== "anio";
+            return isNumeric && notID && notAnio;
+          });
+
+          if (!currentValor || !camposNumericos.includes(currentValor)) {
+            currentValor = camposNumericos[0];
+          }
+
+          valorSelect.innerHTML = camposNumericos.map(c =>
+            `<option value="${c}" ${c === currentValor ? "selected" : ""}>${c.replace(/_/g, ' ')}</option>`
+          ).join("");
+
+          const valor = currentValor;
+
+          const anios = [...new Set(data.map(d => d.anio || d.año))].filter(Boolean).sort();
+          yearSelect.innerHTML = `<option value="Todos">Todos</option>` +
+            anios.map(y => `<option value="${y}" ${y == currentYear ? 'selected' : ''}>${y}</option>`).join("");
+
+          let dataFiltrada = [...data];
+          if (currentYear !== "Todos") {
+            dataFiltrada = dataFiltrada.filter(d => String(d.anio || d.año) === String(currentYear));
+          }
+
+          const agrupado = new Map();
+          for (const row of dataFiltrada) {
+            const key = row[etiqueta];
+            const prev = agrupado.get(key) || 0;
+            agrupado.set(key, prev + Number(row[valor]));
+          }
+
+          const labels = Array.from(agrupado.keys());
+          const values = labels.map(label => agrupado.get(label) || 0);
+
+          const formatoBonito = (txt) => txt.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+          const titulo = `Total de ${formatoBonito(valor)} por ${formatoBonito(etiqueta)}${currentYear !== "Todos" ? ` en ${currentYear}` : ''}`;
+
+          if (chart) {
+            chart.destroy();
+            chart = null;
+          }
+
+          const dynamicWidth = Math.max(800, labels.length * 80);
+          canvas.setAttribute("width", dynamicWidth);
+
+          const ctx = canvas.getContext("2d");
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          document.getElementById("grafico-titulo").textContent = titulo;
+
+          chart = new Chart(canvas, {
+            type: currentChartType,
+            data: {
+              labels,
+              datasets: [{
+                label: formatoBonito(valor),
+                data: values,
+                backgroundColor: labels.map((_, i) => `hsl(${i * 35}, 70%, 60%)`),
+                borderColor: 'rgba(0,0,0,0.1)',
+                borderWidth: 1
+              }]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: { display: true },
+                tooltip: {
+                  callbacks: {
+                    label: function (context) {
+                      const label = context.label || '';
+                      const value = context.parsed || 0;
+                      return `${label}: ${value.toLocaleString()}`;
+                    }
+                  }
+                }
+              },
+              scales: currentChartType === 'bar' ? {
+                x: {
+                  ticks: {
+                    autoSkip: false,
+                    maxRotation: 45,
+                    minRotation: 30
+                  }
+                },
+                y: {
+                  beginAtZero: true
+                }
+              } : {}
+            }
+          });
+
+          // Mejorar visual del resumen largo con 2 columnas si hay muchos elementos
+          if (labels.length > 40) {
+            resumenLista.className = "grid grid-cols-3 gap-x-4 text-sm";
+          } else if (labels.length > 25) {
+            resumenLista.className = "grid grid-cols-2 gap-x-4 text-sm";
+          } else {
+            resumenLista.className = "text-sm space-y-1";
+          }
+
+
+          resumenLista.innerHTML = labels.map((label, i) => `<li><strong>${label}</strong>: ${values[i].toLocaleString()}</li>`).join("");
+        });
+    }
+
+    select.addEventListener("change", () => {
+      currentValor = null;
+      cargarDatos(select.value);
+    });
+
+    valorSelect.addEventListener("change", (e) => {
+      e.preventDefault();
+      currentValor = valorSelect.value;
+      cargarDatos(select.value);
+    });
+
+    yearSelect.addEventListener("change", () => {
+      currentYear = yearSelect.value;
+      cargarDatos(select.value);
+    });
+
+    toggleChartBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      currentChartType = currentChartType === "bar" ? "pie" : "bar";
+      cargarDatos(select.value);
+    });
+
+    exportarBtn.addEventListener("click", async () => {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
+
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+      let y = 10;
+
+      doc.setFontSize(16);
+      doc.text("Resumen de Datos - SIGEDES", 10, y);
+      y += 10;
+
+      doc.setFontSize(10);
+      resumenLista.querySelectorAll("li").forEach((li, index) => {
+        if (y > pageHeight - 20) {
+          doc.addPage();
+          y = 10;
+        }
+        doc.text(li.textContent, 10, y);
+        y += 6;
+      });
+
+      const canvas = document.getElementById("grafico-canvas");
+      const imgData = canvas.toDataURL("image/png", 1.0);
+
+      const imgProps = doc.getImageProperties(imgData);
+      const imgWidth = Math.min(pageWidth - 20, imgProps.width * 0.2);
+      const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
+
+      if (y + imgHeight > pageHeight - 10) {
+        doc.addPage();
+        y = 10;
+      }
+
+      doc.addImage(imgData, 'PNG', 10, y, imgWidth, imgHeight);
+      doc.save("resumen-sigedes.pdf");
+    });
+
+    cargarDatos(select.value);
+
+
+
+    // aquí aun funciona y ya no sale el año
+  </script>
+
+
+
+
+</body>
+
+</html>

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Mi Cesium App</title>
+  <!-- CesiumJS desde CDN -->
+  <script src="https://cesium.com/downloads/cesiumjs/releases/1.129/Build/Cesium/Cesium.js"></script>
+  <link href="https://cesium.com/downloads/cesiumjs/releases/1.129/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    
+    <button id="toggleModalBtn">☰ Capas</button>
+    <a href = "../../index.html"><button id="swapDimension">Cambiar a vista 2D</button></a>
+
+  <div id="layerModal" class="modal hidden">
+    <div class="modal-content">
+      <span id="closeModalBtn" class="close">&times;</span>
+      <h3>Capas</h3>
+      <button id="desmarcarTodoBtn">Desmarcar todas</button>
+      <button id="marcarTodoBtn">Marcar todas</button> <br>
+
+
+      <label><input type="checkbox" class="layer-checkbox" data-layer="El Salvador" checked> El Salvador</label><br>
+      <div class="dropdown">
+      <div class="dropdown-toggle">➕ Límites administrativos</div>
+       <div class="dropdown-content">
+        <label><input type="checkbox" class="layer-checkbox" data-layer="LL_DEP" checked> Limite Depto. LL</label><br>
+        <label><input type="checkbox" class="layer-checkbox" data-layer="LP_DEP" checked> Limite Depto. LP</label><br>
+        <label><input type="checkbox" class="layer-checkbox" data-layer="SS_DEP" checked> Limite Depto. SS</label><br>
+
+        <label><input type="checkbox" class="layer-checkbox" data-layer="LL_DIS" checked> Limite Distrito LL</label><br>
+        <label><input type="checkbox" class="layer-checkbox" data-layer="LP_DIS" checked> Limite Distrito LP</label><br>
+        <label><input type="checkbox" class="layer-checkbox" data-layer="SS_DIS" checked> Limite Distrito SS</label><br>
+
+        <label><input type="checkbox" class="layer-checkbox" data-layer="LL_MUN" checked> Limite Municipio LL</label><br>
+        <label><input type="checkbox" class="layer-checkbox" data-layer="LP_MUN" checked> Limite Municipio LP</label><br>
+        <label><input type="checkbox" class="layer-checkbox" data-layer="SS_MUN" checked> Limite Municipio SS</label><br>
+  </div>
+      <div class="dropdown">
+      <div class="dropdown-toggle">➕ Centros Educativos</div>
+       <div class="dropdown-content">
+        <label><input type="checkbox" class="layer-checkbox" data-layer="CENTROS_DEP" checked> Por departamento</label><br>
+        <label><input type="checkbox" class="layer-checkbox" data-layer="CENTROS_DIS" checked> Por distrito</label><br>
+        <label><input type="checkbox" class="layer-checkbox" data-layer="CENTROS_MUN" checked> Por municipio</label><br>
+        
+       </div>
+        
+  </div>
+  <div class="dropdown">
+      <div class="dropdown-toggle">➕ Indicadores de deserción</div>
+       <div class="dropdown-content">
+        <label><input type="checkbox" class="layer-checkbox" data-layer="INDICADOR_DEP" checked> Por departamento</label><br>
+        <label><input type="checkbox" class="layer-checkbox" data-layer="INDICADOR_DIS" checked> Por distrito</label><br>
+        <label><input type="checkbox" class="layer-checkbox" data-layer="INDICADOR_MUN" checked> Por municipio</label><br>
+        
+        
+       </div>
+        
+  </div>
+
+      
+</div>
+
+    </div>
+  </div>
+
+  <div id="cesiumContainer"></div>
+  
+  <!-- Importamos el archivo JavaScript externo -->
+  <script type="module" src="./js/main_3D.js"></script>
+</body>
+</html>
