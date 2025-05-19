@@ -250,20 +250,28 @@ map.on('singleclick', function (evt) {
                             for (const [key, value] of Object.entries(props)) {
                                 const keyLower = key.toLowerCase();
 
-                                // OMITIR: año ya mostrado arriba
                                 if (keyLower === 'anio' || keyLower === 'año') continue;
-
-                                // OMITIR: cualquier campo que contenga 'id'
                                 if (keyLower.includes('id')) continue;
 
                                 let label = key.replace(/_/g, ' ');
                                 let displayValue = value;
 
+                                // Personalización según número de capa
+                                if (i === 17) label = 'Pendiente estimada (%)';
+                                else if (i === 20) label = 'Zona de Inundación';
+                                else if (i === 22) label = 'Altura estimada (curva) (m)';
+                                else if (i === 23) label = 'Altura DEM (m)';
+
+                                // Otros ajustes
                                 if (keyLower.includes('porcentaje') || keyLower.includes('percent')) {
                                     const num = parseFloat(value);
                                     if (!isNaN(num)) {
                                         displayValue = `${num.toFixed(2)}%`;
                                     }
+                                }
+
+                                if (!isNaN(value)) {
+                                    displayValue = parseFloat(value).toFixed(2);
                                 }
 
                                 label = label.split(' ')
@@ -274,12 +282,12 @@ map.on('singleclick', function (evt) {
                             }
 
                             html += '</ul>';
-
                             mostrarInfo(html);
                         } else {
                             infoContent.innerHTML = "<em>No hay datos en este punto.</em>";
                         }
                     })
+
                     .catch(() => {
                         infoContent.innerHTML = "<em>Error al obtener información.</em>";
                     });
@@ -287,6 +295,7 @@ map.on('singleclick', function (evt) {
                 found = true;
                 break;
             }
+
         }
     }
 
@@ -380,4 +389,10 @@ window.addEventListener('load', () => {
             console.warn("⚠️ Elemento con id='preloader' no encontrado.");
         }
     });
+});
+
+
+
+document.getElementById('dashboardBtn').addEventListener('click', () => {
+    window.open('dashboard.html', '_blank');
 });
