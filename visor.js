@@ -400,5 +400,5 @@ document.getElementById('dashboardBtn').addEventListener('click', () => {
 });
 
 document.getElementById('vista3DBtn').addEventListener('click', () => {
-    window.open('3D/SIGEDES_WEB_3D/index_3D.html');
+    window.open('3D.html', '_blank');
 });
