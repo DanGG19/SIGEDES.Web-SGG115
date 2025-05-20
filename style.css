@@ -413,16 +413,24 @@ body {
 }
 
 #vista3DBtn {
-  position: absolute;
-  top: 20px;
-  left: 60px;
-  z-index: 1000;
-  padding: 8px 12px;
-  font-size: 16px;
   background-color: #0077cc;
   color: white;
+  padding: 8px 16px;
   border: none;
   border-radius: 6px;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  font-weight: bold;
+  transition: background 0.3s;
+}
+
+#vista3DBtn:hover {
+  background-color: #005fa3;
+}
+
+
+.botones-superiores {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px 15px;
 }
