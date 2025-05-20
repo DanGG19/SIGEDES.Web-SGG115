@@ -398,3 +398,7 @@ window.addEventListener('load', () => {
 document.getElementById('dashboardBtn').addEventListener('click', () => {
     window.open('dashboard.html', '_blank');
 });
+
+document.getElementById('vista3DBtn').addEventListener('click', () => {
+    window.open('3D/SIGEDES_WEB_3D/index_3D.html');
+});
