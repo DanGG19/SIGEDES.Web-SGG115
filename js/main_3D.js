@@ -249,6 +249,7 @@ document.querySelectorAll('.dropdown-toggle').forEach(button => {
 });
 
 document.getElementById('swapDimension').addEventListener('click', () => {
-    window.open('index.html', '_blank');
+    window.location.href = window.location.origin + '/index.html';
 });
+
 
