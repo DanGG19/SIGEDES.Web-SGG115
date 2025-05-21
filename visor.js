@@ -400,5 +400,5 @@ document.getElementById('dashboardBtn').addEventListener('click', () => {
 });
 
 document.getElementById('vista3DBtn').addEventListener('click', () => {
-    window.open('3D.html', '_blank');
+    window.open('3d.html', '_blank');
 });
