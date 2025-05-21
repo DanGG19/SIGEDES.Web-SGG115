@@ -248,3 +248,7 @@ document.querySelectorAll('.dropdown-toggle').forEach(button => {
   });
 });
 
+document.getElementById('swapDimension').addEventListener('click', () => {
+    window.location.href = 'index.html';
+});
+
