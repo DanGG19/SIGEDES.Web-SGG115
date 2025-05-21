@@ -249,7 +249,8 @@ document.querySelectorAll('.dropdown-toggle').forEach(button => {
 });
 
 document.getElementById('swapDimension').addEventListener('click', () => {
-    window.location.href = window.location.origin + '/index.html';
+    window.location.href = 'https://sigedes.gg19083.me';
 });
+
 
 
