@@ -11,89 +11,81 @@
   <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" />
   <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
   <style>
     canvas {
       max-height: 400px !important;
     }
+    /* Scrollbar profesional */
+    ::-webkit-scrollbar { width: 8px; background: #f4f6fa; }
+    ::-webkit-scrollbar-thumb { background: #ced6e0; border-radius: 8px; }
+    ::-webkit-scrollbar-thumb:hover { background: #a2b0c6; }
   </style>
 </head>
 
-<body class="bg-gray-100 min-h-screen text-gray-800">
-  <div class="container mx-auto px-4 py-8">
-    <div class="flex items-center justify-center mb-6 gap-4">
+<body class="bg-gray-100 min-h-screen text-gray-800 font-sans">
+  <!-- Header corporativo -->
+  <header class="bg-white shadow-sm mb-8">
+    <div class="container mx-auto px-4 py-3 flex items-center gap-4">
       <img src="logo-sigedes.png" alt="Logo SIGEDES" class="w-12 h-12">
-      <h1 class="text-3xl font-bold text-blue-700">Dashboard de SIGEDES</h1>
+      <h1 class="text-3xl font-bold text-blue-700 tracking-tight drop-shadow">Dashboard de SIGEDES</h1>
     </div>
-
-    <div class="flex flex-col md:flex-row items-center justify-center gap-4 mb-4">
-      <label for="tabla-select" class="font-semibold text-lg">Selecciona una tabla:</label>
-      <select id="tabla-select"
-        class="p-2 rounded border border-gray-300 shadow-sm focus:outline-none focus:ring focus:border-blue-400">
-        <option value="resumen_centros_departamento">Centros por Departamento</option>
-        <option value="resumen_centros_distrito">Centros por Distrito</option>
-        <option value="resumen_centros_municipio">Centros por Municipio</option>
-        <option value="resumen_desercion_departamento">Deserción por Departamento</option>
-        <option value="resumen_desercion_distrito">Deserción por Distrito</option>
-        <option value="resumen_desercion_municipio">Deserción por Municipio</option>
-      </select>
+  </header>
+  
+  <main class="container mx-auto px-4">
+    <!-- Filtros en tarjeta -->
+    <div class="bg-white rounded-lg shadow p-4 mb-6 flex flex-col md:flex-row items-center gap-6 border border-gray-200">
+      <div>
+        <label for="tabla-select" class="block text-sm text-gray-500 mb-1">Tabla:</label>
+        <select id="tabla-select"
+          class="p-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400 transition">
+          <option value="resumen_centros_departamento">Centros por Departamento</option>
+          <option value="resumen_centros_distrito">Centros por Distrito</option>
+          <option value="resumen_centros_municipio">Centros por Municipio</option>
+          <option value="resumen_desercion_departamento">Deserción por Departamento</option>
+          <option value="resumen_desercion_distrito">Deserción por Distrito</option>
+          <option value="resumen_desercion_municipio">Deserción por Municipio</option>
+        </select>
+      </div>
+      <div>
+        <label for="valor-select" class="block text-sm text-gray-500 mb-1">Campo numérico:</label>
+        <select id="valor-select"
+          class="p-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400 transition">
+          <!-- Opciones dinámicas -->
+        </select>
+      </div>
+      <!-- El select de año se inserta dinámicamente -->
     </div>
-
-    <div class="flex flex-col md:flex-row items-center justify-center gap-4 mb-8">
-      <label for="valor-select" class="font-semibold text-lg">Campo numérico:</label>
-      <select id="valor-select"
-        class="p-2 rounded border border-gray-300 shadow-sm focus:outline-none focus:ring focus:border-blue-400">
-        <!-- opciones dinámicas -->
-      </select>
-    </div>
-
-    <div class="overflow-x-auto bg-white rounded-lg shadow">
+    
+    <!-- Tabla de datos -->
+    <div class="overflow-x-auto bg-white rounded-lg shadow-lg border border-gray-200 mb-8">
       <table id="tabla" class="display min-w-full text-sm text-left text-gray-600"></table>
     </div>
-
-    <div class="mt-10 flex flex-col md:flex-row gap-8">
-      <div id="grafico-container" class="w-full md:w-3/4">
+    
+    <div class="flex flex-col md:flex-row gap-8">
+      <!-- Gráfico -->
+      <div id="grafico-container" class="w-full md:w-3/4 bg-white p-4 rounded-lg shadow-lg border border-gray-200">
         <h2 id="grafico-titulo" class="text-xl font-semibold text-center text-gray-700 mb-4"></h2>
         <canvas id="grafico-canvas" class="w-full max-w-4xl mx-auto h-[400px]"></canvas>
       </div>
-
-      <div id="resumen-container" class="w-full md:w-1/4 bg-white p-4 rounded-lg shadow max-h-[400px] overflow-y-auto">
-        <h3 class="text-lg font-semibold mb-2 text-center">Resumen</h3>
+      <!-- Resumen -->
+      <div id="resumen-container" class="w-full md:w-1/4 bg-white p-4 rounded-lg shadow border border-gray-200 max-h-[400px] overflow-y-auto">
+        <h3 class="text-lg font-semibold mb-2 text-center text-blue-700">Resumen</h3>
         <ul id="resumen-lista" class="text-sm grid gap-x-4 gap-y-1"></ul>
-        <button id="exportarPDF" class="mt-4 w-full px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">
+        <button id="exportarPDF" class="mt-4 w-full px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition font-semibold">
           Exportar PDF
         </button>
       </div>
     </div>
-
-    <div class="flex justify-center mt-6">
+    
+    <div class="flex justify-center mt-8">
       <button id="toggleChart"
         class="px-4 py-2 bg-blue-600 text-white font-semibold rounded shadow hover:bg-blue-700 transition">
         Cambiar tipo de gráfico
       </button>
     </div>
-  </div>
+  </main>
 
-  <script>
-    import { jsPDF } from "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js";
-
-    window.jsPDF = jsPDF;
-    exportarBtn.addEventListener("click", () => {
-      const doc = new jsPDF();
-      doc.text("Resumen de Datos", 10, 10);
-      let y = 20;
-      resumenLista.querySelectorAll("li").forEach((li) => {
-        doc.text(li.textContent, 10, y);
-        y += 10;
-      });
-      doc.save("resumen.pdf");
-    });
-
-    window.actualizarResumen = function (etiquetas, valores) {
-      resumenLista.innerHTML = etiquetas.map((et, i) => `<li><strong>${et}</strong>: ${valores[i]}</li>`).join("");
-    }
-  </script>
-
+  <!-- Lógica JS y funcionalidad -->
   <script>
     const apiBase = "https://api.gg19083.me/api/";
     const select = document.getElementById("tabla-select");
@@ -110,10 +102,22 @@
     let currentValor = null;
     let currentYear = "Todos";
 
+    // Select de año dinámico
     const yearSelect = document.createElement("select");
     yearSelect.id = "filtro-anio";
-    yearSelect.className = "ml-4 p-2 rounded border border-gray-300 shadow-sm focus:outline-none focus:ring focus:border-blue-400";
-    select.insertAdjacentElement("afterend", yearSelect);
+    yearSelect.className = "p-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400 transition";
+    yearSelect.style.minWidth = "120px";
+    // Etiqueta de año para consistencia visual
+    const yearLabel = document.createElement("label");
+    yearLabel.htmlFor = "filtro-anio";
+    yearLabel.textContent = "Año:";
+    yearLabel.className = "block text-sm text-gray-500 mb-1";
+    const yearContainer = document.createElement("div");
+    yearContainer.appendChild(yearLabel);
+    yearContainer.appendChild(yearSelect);
+
+    // Añadir al panel de filtros
+    document.querySelector('.bg-white.rounded-lg.shadow.p-4').appendChild(yearContainer);
 
     function cargarDatos(tabla) {
       fetch(apiBase + tabla)
@@ -136,7 +140,7 @@
 
           let tbody = "<tbody>";
           data.forEach(row => {
-            tbody += `<tr class="hover:bg-gray-100">`;
+            tbody += `<tr class="hover:bg-blue-50">`;
             columnas.forEach(col => {
               tbody += `<td class="px-4 py-2 border">${row[col] ?? ''}</td>`;
             });
@@ -263,7 +267,7 @@
             }
           });
 
-          // Mejorar visual del resumen largo con 2 columnas si hay muchos elementos
+          // Visual resumen en grid si hay muchos elementos
           if (labels.length > 40) {
             resumenLista.className = "grid grid-cols-3 gap-x-4 text-sm";
           } else if (labels.length > 25) {
@@ -271,7 +275,6 @@
           } else {
             resumenLista.className = "text-sm space-y-1";
           }
-
 
           resumenLista.innerHTML = labels.map((label, i) => `<li><strong>${label}</strong>: ${values[i].toLocaleString()}</li>`).join("");
         });
@@ -337,16 +340,10 @@
       doc.save("resumen-sigedes.pdf");
     });
 
+    // Cargar datos iniciales
     cargarDatos(select.value);
 
-
-
-    // aquí aun funciona y ya no sale el año
   </script>
-
-
-
-
 </body>
 
 </html>
